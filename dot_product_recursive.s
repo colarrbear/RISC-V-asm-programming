@@ -37,8 +37,6 @@ dot_product_loop:
     jr ra
 
 exit:
-    mv t0, a0
-
     # print the dot product
     addi a0, x0, 4
     la a1, print_text
