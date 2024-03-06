@@ -1,56 +1,53 @@
-"""draft"""
-
 .data
 a: .word 1, 2, 3, 4, 5
 b: .word 6, 7, 8, 9, 10
-output: .string "Result: "
-newline: .string "\n"
+print_text: .string "The dot product is: "
 
 .text
 main:
-# Registers NOT to be used x0 to x4 and x10 to x17;
-# Registers that we can use x5 to x9 and x18 to x31;
+    la a0, a
+    la a1, b
+    li a2, 5
+    jal dot_product_iterative       # dot_project_iterative(a0, a1, a2)
+    j exit
 
-    addi x5, x0, 0      # let x5 be size and set it to 0
-    # addi x6, x0, 0      # let x6 be sop and set it to 0
-    addi x6, x0, 1      # let x6 be 1
+dot_product_iterative:
+    addi t5, x0, 0                  # initialize result to 0
 
-    la x8, a        # loading the address of a to x8
-    la x9, b        # loading the address of b to x9
+# loop to compute dot product
+dot_product_loop:
+    # load current elements of a and b
+    lw t1, 0(a0) # a[0]
+    lw t2, 0(a1) # b[0]
 
-loop1:
+    # compute product of current elements and accumulate
+    mul t3, t1, t2
+    add t5, t5, t3
 
-    beq x5, x6, exit1
-    
-    #bge x5, x7, exit1   # check if i >= 5, if so goto exit1
+    # move to next elements
+    addi a0, a0, 4 # a = a + 1
+    addi a1, a1, 4 # b = b + 1
+    addi a2, a2, -1 # size = size - 1
 
-    slli x18, x5, 2     # set x18 to i*4
-    add x19, x18, x8    # add i*4 to the base address of a and put it to x19
-    lw x20, 0(x19)      # x20 = a[i]
+    # check if loop should continue
+    bnez a2, dot_product_loop
 
-    add x19, x18, x9    # x19 = i*4 + &b = &b[i]
-    lw x21, 0(x19)      # x21 = b[i]
+    # exit loop if size becomes 0
 
-    mul x20, x20, x21   # a[i] = a[i] * b[i]
+    jr ra
 
-    add x6, x6, x20     # sop += x20
+exit:
+    mv t0, a0
 
-    addi x5, x5, 1      # to tell that loops end
-    j loop1
-    
-exit1:
-    
-    li a0, 4                    # Print Output Label
-    la a1, output
+    # print the dot product
+    addi a0, x0, 4
+    la a1, print_text
     ecall
 
-    la a1, newline             # Print New linw
+    mv a1, t5
+    addi a0, x0, 1
     ecall
 
-    li a0, 1                    # Print sop
-    mv a1, x6
+    # exit the program
+    addi a0, x0, 10
     ecall
-
-    li a0, 10
-    ecall
-    

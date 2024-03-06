@@ -1,7 +1,7 @@
 .data
 a: .word 1, 2, 3, 4, 5
 b: .word 6, 7, 8, 9, 10
-output: .string "Result: "
+output: .string "The dot product is: "
 newline: .string "\n"
 
 .text
